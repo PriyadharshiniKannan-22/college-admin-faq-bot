@@ -1,0 +1,26 @@
+[
+  {
+    "program": "B.Tech CSE",
+    "tuition_fee": 120000,
+    "hostel_fee": 60000,
+    "transport_fee": 15000,
+    "other_charges": 10000,
+    "total_fee": 205000
+  },
+  {
+    "program": "B.Tech ECE",
+    "tuition_fee": 110000,
+    "hostel_fee": 60000,
+    "transport_fee": 15000,
+    "other_charges": 10000,
+    "total_fee": 195000
+  },
+  {
+    "program": "B.Tech Mechanical",
+    "tuition_fee": 100000,
+    "hostel_fee": 60000,
+    "transport_fee": 15000,
+    "other_charges": 10000,
+    "total_fee": 185000
+  }
+]

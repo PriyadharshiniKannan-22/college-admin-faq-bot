@@ -1,0 +1,17 @@
+[
+  {
+    "exam_type": "Mid Semester",
+    "start_date": "2026-09-10",
+    "end_date": "2026-09-20"
+  },
+  {
+    "exam_type": "End Semester",
+    "start_date": "2026-11-15",
+    "end_date": "2026-11-30"
+  },
+  {
+    "exam_type": "Supplementary Exams",
+    "start_date": "2027-01-10",
+    "end_date": "2027-01-20"
+  }
+]
