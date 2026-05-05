@@ -2,6 +2,10 @@ from langchain_core.documents import Document
 from pypdf import PdfReader
 import docx
 import os
+import json
+
+
+# ---------- FILE READERS ----------
 
 def read_txt(path):
     with open(path, "r", encoding="utf-8", errors="ignore") as f:
@@ -22,6 +26,8 @@ def read_docx(path):
     doc = docx.Document(path)
     return "\n".join([para.text for para in doc.paragraphs])
 
+
+# ---------- SINGLE FILE (UPLOAD) ----------
 
 def process_uploaded_file(file_path):
     ext = os.path.splitext(file_path)[-1].lower()
@@ -44,3 +50,24 @@ def process_uploaded_file(file_path):
             metadata={"source": file_path, "type": ext}
         )
     ]
+
+
+# ---------- FULL DATA LOADER (IMPORTANT) ----------
+
+def load_all_data():
+    docs = []
+
+    upload_folder = "data/uploads"
+
+    if not os.path.exists(upload_folder):
+        return docs
+
+    for filename in os.listdir(upload_folder):
+        file_path = os.path.join(upload_folder, filename)
+
+        try:
+            docs.extend(process_uploaded_file(file_path))
+        except Exception as e:
+            print(f"Error processing {filename}: {e}")
+
+    return docs
