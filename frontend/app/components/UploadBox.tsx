@@ -2,28 +2,30 @@
 
 import { useState } from "react";
 import { uploadFile } from "../../lib/api";
+import { useAuth } from "@clerk/nextjs";
 
 export default function UploadBox() {
-  const [status, setStatus] = useState("");
+  const { getToken } = useAuth();
 
-  const handleUpload = async (e: any) => {
-    const file = e.target.files[0];
+  const [file, setFile] = useState<File | null>(null);
+
+  const handleUpload = async () => {
     if (!file) return;
 
-    setStatus("Uploading...");
-
     try {
-      await uploadFile(file);
-      setStatus("Uploaded ✔");
+      await uploadFile(file, getToken);
+      alert("Uploaded successfully");
     } catch (err) {
-      setStatus("Upload failed ❌");
+      alert("Upload failed");
     }
   };
 
   return (
-    <div className="bg-gray-900 border border-gray-700 p-4 rounded-xl">
-      <input type="file" onChange={handleUpload} />
-      <p className="text-sm mt-2">{status}</p>
+    <div className="mb-4">
+      <input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+      <button onClick={handleUpload} className="ml-2 bg-blue-500 text-white px-3 py-1 rounded">
+        Upload
+      </button>
     </div>
   );
 }
