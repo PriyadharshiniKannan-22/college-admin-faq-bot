@@ -1,5 +1,5 @@
 import os
-from fastapi import HTTPException, Header
+from fastapi import Request, HTTPException, Header
 from jose import jwt
 import requests
 
@@ -11,7 +11,9 @@ def get_public_keys():
     return requests.get(url).json()
 
 
-async def get_current_user(authorization: str = Header(None)):
+async def get_current_user(req: Request):
+    authorization = req.headers.get("Authorization")
+
     if not authorization:
         raise HTTPException(status_code=401, detail="Missing token")
 
@@ -31,9 +33,9 @@ async def get_current_user(authorization: str = Header(None)):
         user_id = payload.get("sub")
 
         if not user_id:
-            raise Exception("No user_id")
+            raise Exception("No user_id in token")
 
-        # Fetch user from Clerk API
+        # Fetch user from Clerk
         headers = {
             "Authorization": f"Bearer {os.getenv('CLERK_SECRET_KEY')}"
         }
@@ -43,13 +45,24 @@ async def get_current_user(authorization: str = Header(None)):
             headers=headers
         )
 
+        if res.status_code != 200:
+            raise Exception("Failed to fetch user from Clerk")
+
         user = res.json()
-        return user
+
+        # Extract role safely
+        # You can store role in public_metadata in Clerk
+        role = user.get("public_metadata", {}).get("role", "user")
+
+        # Return normalized structure
+        return {
+            "user_id": user_id,
+            "role": role
+        }
 
     except Exception as e:
         print("TOKEN ERROR:", e)
         raise HTTPException(status_code=401, detail="Invalid token")
-
 
 async def require_admin(user= None):
     role = user.get("public_metadata", {}).get("role")
