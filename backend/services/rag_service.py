@@ -1,14 +1,21 @@
 import os
 from utils.vectorstore import load_db
 from langchain_google_genai import ChatGoogleGenerativeAI
+from services.chat_history import get_chat_history
 
 llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
     google_api_key=os.getenv("GOOGLE_API_KEY")
 )
 
-def ask_question(query: str):
+def ask_question(query: str, user_id: str):
     db = load_db()
+
+    history = get_chat_history(user_id)[-5:]
+
+    history_text = "\n".join(
+        [f"{m['role']}: {m['content']}" for m in history]
+    )
 
     results = db.similarity_search_with_score(query, k=8)
 
