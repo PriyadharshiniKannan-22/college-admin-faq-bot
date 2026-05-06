@@ -3,23 +3,43 @@
 import { useState } from "react";
 import { sendMessage } from "../../lib/api";
 import { useAuth } from "@clerk/nextjs";
+import { useEffect } from "react";
+import { getChatHistory } from "../../lib/api";
 
 export default function ChatBox() {
-  const { getToken } = useAuth();
-
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
 
+  const { getToken, isLoaded } = useAuth();
+
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    const loadHistory = async () => {
+      try {
+        const token = await getToken();
+
+        const res = await getChatHistory(token);
+        setMessages(res.messages);
+      } catch (err: any) {
+        console.error("CHAT HISTORY ERROR:", err);
+        console.error("RESPONSE:", err?.response);
+      }
+    };
+
+    loadHistory();
+  }, [isLoaded]);
+
   const handleSend = async () => {
     if (!input.trim()) return;
+
+    const token = await getToken();
 
     const userMessage = { role: "user", content: input };
     setMessages((prev) => [...prev, userMessage]);
 
     try {
-      const token = await getToken({ template: "rbac" });
-
-      const res = await sendMessage(input, token || "");
+      const res = await sendMessage(input, token);
 
       const uniqueSources = res.sources
         ? [...new Set<string>(res.sources)].map((s) => s.split("/").pop())
