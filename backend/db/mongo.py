@@ -1,10 +1,18 @@
 from pymongo import MongoClient
+import certifi
 import os
+from dotenv import load_dotenv
 
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+load_dotenv()
 
-client = MongoClient(MONGO_URI)
+MONGO_URI = os.getenv("MONGO_URI")
 
-db = client["college_chatbot"]
+client = MongoClient(
+    MONGO_URI,
+    tlsCAFile=certifi.where()
+)
 
-messages_collection = db["messages"]
+db = client["college_hub"]
+
+chat_collection = db["chat_history"]
+session_collection = db["chat_sessions"]
