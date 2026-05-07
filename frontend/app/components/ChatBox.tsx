@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { sendMessage } from "../../lib/api";
+import { createSession, sendMessage } from "../../lib/api";
 import { useAuth } from "@clerk/nextjs";
 import { useEffect } from "react";
 import { getChatHistory } from "../../lib/api";
@@ -9,26 +9,31 @@ import { getChatHistory } from "../../lib/api";
 export default function ChatBox() {
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
+  const [sessionId, setSessionId] = useState("");
 
   const { getToken, isLoaded } = useAuth();
 
   useEffect(() => {
     if (!isLoaded) return;
 
-    const loadHistory = async () => {
+    const setupChat = async () => {
       try {
         const token = await getToken();
 
-        const res = await getChatHistory(token);
-        setMessages(res.messages);
-      } catch (err: any) {
-        console.error("CHAT HISTORY ERROR:", err);
-        console.error("RESPONSE:", err?.response);
+        if (!token) return;
+
+        // Create new session
+        const sessionRes = await createSession(token);
+
+        setSessionId(sessionRes.session_id);
+
+      } catch (err) {
+        console.error("SESSION ERROR:", err);
       }
     };
 
-    loadHistory();
-  }, [isLoaded]);
+    setupChat();
+  }, [getToken]);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -39,7 +44,7 @@ export default function ChatBox() {
     setMessages((prev) => [...prev, userMessage]);
 
     try {
-      const res = await sendMessage(input, token);
+      const res = await sendMessage(input, sessionId, token!);
 
       const uniqueSources = res.sources
         ? [...new Set<string>(res.sources)].map((s) => s.split("/").pop())
