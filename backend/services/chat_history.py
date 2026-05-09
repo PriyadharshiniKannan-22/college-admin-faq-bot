@@ -68,7 +68,44 @@ def get_chat_history(session_id):
     return [
         {
             "role": msg["role"],
-            "content": msg["content"]
+            "content": msg["content"],
+            "sources": msg.get("sources", [])
         }
         for msg in messages
     ]
+
+# -----------------------------
+# UPDATE SESSION TITLE
+# -----------------------------
+def update_session_title(session_id, title):
+    session_collection.update_one(
+        {"session_id": session_id},
+        {
+            "$set": {
+                "title": title
+            }
+        }
+    )
+
+# -----------------------------
+# VERIFY SESSION OWNERSHIP
+# -----------------------------
+def verify_session_owner(session_id, user_id):
+
+    session = session_collection.find_one({
+        "session_id": session_id,
+        "user_id": user_id
+    })
+
+    return session is not None
+
+def update_session_title(session_id, title):
+
+    session_collection.update_one(
+        {"session_id": session_id},
+        {
+            "$set": {
+                "title": title
+            }
+        }
+    )

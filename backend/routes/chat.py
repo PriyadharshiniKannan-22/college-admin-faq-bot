@@ -5,9 +5,10 @@ from services.chat_history import (
     save_message,
     get_chat_history,
     create_chat_session,
-    get_user_sessions
+    get_user_sessions,
+    verify_session_owner,
+    update_session_title
 )
-from auth.dependencies import get_current_user
 from utils.auth import get_current_user
 
 router = APIRouter()
@@ -25,7 +26,20 @@ async def chat(payload: dict, req: Request):
     query = payload["query"]
     session_id = payload["session_id"]
 
+    if not verify_session_owner(session_id, user_id):
+        return {
+            "error": "Unauthorized session"
+        }
+
     save_message(session_id, user_id, "user", query)
+
+    history = get_chat_history(session_id)
+
+    if len(history) == 1:
+        update_session_title(
+            session_id,
+            query[:30]
+        )
 
     result = ask_question(query, user_id)
 
@@ -42,6 +56,13 @@ async def chat(payload: dict, req: Request):
 async def chat_history(session_id: str, req: Request):
 
     user = await get_current_user(req)
+    user_id = user["user_id"]
+
+
+    if not verify_session_owner(session_id, user_id):
+        return {
+            "error": "Unauthorized session"
+        }
 
     history = get_chat_history(session_id)
 
