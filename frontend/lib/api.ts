@@ -38,12 +38,18 @@ export const uploadFile = async (file: File, getToken: any) => {
   return res.data;
 };
 
-export const getChatHistory = async (token: string) => {
-  const res = await axios.get(`${API}/chat/history`, {
-    headers: {                                                                                                                                                                                                                                                  
-      Authorization: `Bearer ${token}`,
-    },
-  });
+export const getChatHistory = async (
+  sessionId: string,
+  token: string
+) => {
+  const res = await axios.get(
+    `${API}/chat/history/${sessionId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 
   return res.data;
 };
@@ -60,4 +66,30 @@ export const createSession = async (token: string) => {
   );
 
   return res.data;
+};
+
+export const getSessions = async (token: string) => {
+  const res = await axios.get(`${API}/chat/sessions`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+};
+
+export const getSessionHistory = async (
+  token: string,
+  sessionId: string
+) => {
+  const res = await axios.get(
+    `${API}/chat/history/${sessionId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return res.data.messages;
 };
