@@ -1,13 +1,53 @@
 "use client";
 
 import { useUser, SignInButton, UserButton } from "@clerk/nextjs";
+
 import ChatBox from "./components/ChatBox";
 import UploadBox from "./components/UploadBox";
+
+import AppLayout from "./components/layout/AppLayout";
+
+import { ChatProvider, useChat } from "./components/context/chat-context";
+
+function UserChatPage() {
+
+  const { sessionId } = useChat();
+
+  return (
+    <AppLayout>
+
+      <div className="flex justify-between items-center px-6 py-4 border-b border-zinc-800">
+
+        <h1 className="text-xl font-semibold">
+          College Hub AI
+        </h1>
+
+        <UserButton />
+
+      </div>
+
+      {sessionId ? (
+        <ChatBox />
+      ) : (
+        <div className="flex-1 flex items-center justify-center text-zinc-500">
+          Loading chat...
+        </div>
+      )}
+
+    </AppLayout>
+  );
+}
 
 export default function Home() {
   const { user, isSignedIn, isLoaded } = useUser();
 
-  if (!isLoaded) return <div>Loading...</div>;
+  if (!isLoaded) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-black text-white">
+        Loading...
+      </div>
+    );
+  }
 
   if (!isSignedIn) {
     return (
@@ -19,15 +59,27 @@ export default function Home() {
 
   const role = user?.publicMetadata?.role;
 
-  return (
-    <main className="p-6 max-w-3xl mx-auto">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold">College Admin Chatbot</h1>
-        <UserButton />
-      </div>
+  // ADMIN UI
+  if (role === "admin") {
+    return (
+      <main className="min-h-screen bg-zinc-950 text-white p-6">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-2xl font-bold">
+            Admin Dashboard
+          </h1>
 
-      {role === "admin" && <UploadBox />}
-      {role === "user" && <ChatBox />}
-    </main>
+          <UserButton />
+        </div>
+
+        <UploadBox />
+      </main>
+    );
+  }
+
+  // USER UI
+  return (
+    <ChatProvider>
+      <UserChatPage />
+    </ChatProvider>
   );
 }
