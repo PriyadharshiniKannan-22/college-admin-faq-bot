@@ -19,7 +19,7 @@ import {
   getChatHistory,
 } from "@/lib/api";
 
-import { useChat } from "../context/chat-context";
+import { useChat } from "../../chat/context/chat-context";
 
 type Session = {
   session_id: string;

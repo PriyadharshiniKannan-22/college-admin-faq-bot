@@ -9,7 +9,7 @@ import {
   getChatHistory,
 } from "../../lib/api";
 
-import { useChat } from "@/app/components/context/chat-context";
+import { useChat } from "@/app/chat/context/chat-context";
 import { getSessions } from "@/lib/api";
 
 export default function ChatBox() {
